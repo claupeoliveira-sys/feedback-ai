@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Feedback AI</title>
+</head>
+<body>
+
+  <h2>Gerador de Feedback</h2>
+
+  <textarea id="pergunta" rows="5" cols="50"></textarea>
+  <br><br>
+  <button onclick="enviar()">Gerar Feedback</button>
+
+  <h3>Resultado:</h3>
+  <div id="resultado"></div>
+
+<script>
+async function enviar() {
+
+  const pergunta = document.getElementById("pergunta").value;
+
+  const resposta = await fetch("/api/ask", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ question: pergunta })
+  });
+
+  const data = await resposta.json();
+
+  document.getElementById("resultado").innerText = data.answer || data.error;
+}
+</script>
+
+</body>
+</html>
