@@ -1,5 +1,3 @@
-import OpenAI from "openai";
-
 export default async function handler(req, res) {
 
   if (req.method !== "POST") {
@@ -14,26 +12,32 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Pergunta é obrigatória" });
     }
 
-    const client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+    const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.MISTRAL_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "mistral-small-latest",
+        messages: [
+          {
+            role: "system",
+            content: "Você é um especialista em feedback corporativo."
+          },
+          {
+            role: "user",
+            content: question
+          }
+        ],
+        temperature: 0.7
+      })
     });
 
-    const response = await client.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: "Você é um especialista em feedback corporativo."
-        },
-        {
-          role: "user",
-          content: question
-        }
-      ],
-    });
+    const data = await response.json();
 
     return res.status(200).json({
-      answer: response.choices[0].message.content
+      answer: data.choices[0].message.content
     });
 
   } catch (error) {
